@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id=is_voting value={{ datasingle.is_voting }}></div>
+<section class="section section-posts grey lighten-4">
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <h4>{{datasingle.name}}</h4>
+                <!-- TODO - don't use a table here -->
+                <table>
+                    <tr>
+                        <td nowrap style="width:0%;">
+                            current story:
+                        </td>
+                        <td>
+                            <div id="current-story">{{datasingle.story}}</div>
+                        </td>
+                    </tr>
+                </table>
+
+                <div id="game-id" value={{datasingle.id}}></div>
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Players</span>
+
+                        <table class="striped">
+                            <thead>
+                                <tr>
+                                    <th>Player</th>
+                                    <th>Vote</th>
+                                </tr>
+                            </thead>
+                            <tbody class="players">
+                                {% for player in playerlist %}
+                                    <tr id={{player.id}}>
+                                        <td class="username">{{player.username}}</td>
+                                        <td class="vote">{{player.vote}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-posts grey lighten-4">
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">History</span>
+                        <table class="striped">
+                            <thead>
+                                <tr>
+                                    <th>Story</th>
+                                    <th>Voted</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-tbody">
+                                {% for history in historylist %}
+                                    <tr>
+                                        <td>{{history.story}}</td>
+                                        <td>{{history.value}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- TODO - verticle collapse button -->
+<!-- Fixed Action Button  -->
+<div class="fixed-action-btn">
+    <a href="#size" class="modal-trigger btn-floating red">
+        <i class="material-icons">swap_vert</i>
+    </a>
+    <a href="#current-game" class="modal-trigger btn-floating red">
+        <i class="material-icons">mode_edit</i>
+    </a>
+    <a href="#vote-history" class="modal-trigger btn-floating blue vote-history-btn">
+        <i class="material-icons">add</i>
+    </a>
+    {% if datasingle.is_voting %}
+        <a class="toggle-voting btn-floating green">
+            <i id="toggle-voting-btn" class="material-icons">visibility</i>
+        </a>
+    {% else %}
+        <a class="toggle-voting btn-floating green">
+            <i id="toggle-voting-btn" class="material-icons">visibility_off</i>
+        </a>
+    {% endif %}
+    <!-- <ul>
+        <li>
+            <a class="btn-floating red">
+                <i class="material-icons">insert_chart</i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating blue">
+                <i class="material-icons">publish</i>
+            </a>
+        </li>
+        <li>
+            <a class="btn-floating yellow">
+                <i class="material-icons">format_quote</i>
+            </a>
+        </li>
+    </ul> -->
+</div>
+
+<div id="size" class="modal">
+    <div class="modal-content">
+        <h4>My Vote</h4>
+        <div class="myvote">
+            <div class="row">
+                <button type="button" class="modal-action modal-close btn blue white-text col s3" value=0>0</button>
+                <button type="button" class="modal-action modal-close btn blue white-text col s3" value=1>1</button>
+                <button type="button" class="modal-action modal-close btn blue white-text col s3" value=2>2</button>
+                <button type="button" class="modal-action modal-close btn blue white-text col s3" value=3>3</button>
+            </div>
+            <div class="row">
+                <button type="button" class="modal-action modal-close btn blue white-text col s3" value=5>5</button>
+                <button type="button" class="modal-action modal-close btn blue white-text col s3" value=8>8</button>
+                <button type="button" class="modal-action modal-close btn blue white-text col s3" value=13>13</button>
+                <button type="button" class="modal-action modal-close btn blue white-text col s3" value=20>20</button>
+            </div>
+            <div class="row">
+                <button type="button" class="modal-action modal-close btn blue white-text col s3" value=40>40</button>
+                <button type="button" class="modal-action modal-close btn blue white-text col s3" value=100>100</button>
+                <button type="button" class="modal-action modal-close btn blue white-text col s3" value=?>?</button>
+                <button type="button" class="modal-action modal-close btn blue white-text col s3" value=Ꝏ>Ꝏ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="current-game" class="modal">
+    <div class="modal-content">
+        <h4>Set Story</h4>
+        <form>
+            <div class="input-field">
+                <input type="text" id="story">  
+                <!-- TODO - Set focus when modal is displayed -->
+                <label for="title">Game Name</label>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="modal-action modal-close btn blue white-text set-current-story">Set</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="vote-history" class="modal">
+    <div class="modal-content">
+        <h4>Add History</h4>
+        <form>
+            <div class="input-field">
+                <input type="text" id="current-story-modal" value="{{datasingle.story}}">  
+                <!-- TODO - Set focus when modal is displayed -->
+                <label for="current-story-modal">Current Story</label>
+            </div>
+
+            <div class="input-field">
+                <input type="text" id="vote">
+                <!-- TODO - Set focus when modal is displayed -->
+                <label for="title">Vote</label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-action modal-close btn blue white-text add-vote-history">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="/static/js/materialize.min.js"></script>
+<script type="text/javascript" src="/static/js/app.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.modal').modal();
+    })
+
+    $('.vote-history-btn').click(function(){ 
+        alert("I want this to appear after the modal has opened!");
+        document.getElementById('current-story-modal').focus();
+    }); 
+</script>
+
+
+{% endblock %}

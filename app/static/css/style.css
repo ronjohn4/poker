@@ -1,0 +1,16 @@
+.card-title-small{
+    font-size: 18px;
+    font-weight: 300;
+}
+th, td {
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+}
+card-content {
+    padding-top: 5px;
+}
+.col.s4 > .btn {
+    width: 100%;
+ }

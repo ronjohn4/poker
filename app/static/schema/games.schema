@@ -1,0 +1,15 @@
+{
+    "$schema":"http://json-schema.org/draft-04/schema#",
+
+    "type" : "object",
+    "properties": {
+        "id": {"type": "integer"},
+        "name": {"type": "string"},
+        "last_used_date": {"type": "string"},
+        "is_active": {"type": "boolean"},
+        "is_voting": {"type": "boolean"},
+        "owner_id": {"type": "integer"},
+        "story": {"type": "string"},        
+    },
+    "required": ["id","name","last_used_date","is_active","is_voting","owner_id"]
+}

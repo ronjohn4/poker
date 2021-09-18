@@ -1,0 +1,10 @@
+{
+    "beautify.config": "",
+    "python.testing.pytestArgs": [
+        "app"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.testing.nosetestsEnabled": false,
+    "git.ignoreLimitWarning": true,
+}

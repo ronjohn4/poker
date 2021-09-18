@@ -1,0 +1,61 @@
+<!doctype html>
+
+<html>
+    <head>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link type="text/css" rel="stylesheet" href="/static/css/materialize.min.css">
+        <link type="text/css" rel="stylesheet" href="/static/css/style.css">
+
+        <!--Let browser know website is optimized for mobile-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        {% if title %}
+            <title>Poker - {{ title }}</title>
+        {% else %}
+            <title>Poker</title>
+        {% endif %}
+    </head>
+    <body>
+        <!-- used by triggered js to get the current user_id -->
+        <!-- TODO - validate that current_user_id not defined works -->
+
+        {% if current_user %}
+            <div id=current_user_id value={{ current_user.id }}></div>
+        {% else %}
+            <div id=current_user_id></div>
+        {% endif %}
+
+        <nav>
+            <div class="nav-wrapper">
+                <div class="container">
+                    <a href="{{ url_for('main.index') }}" class="brand-logo">Poker</a>
+                    <ul id="nav-mobile" class="right">
+                        <li>
+                            {% if current_user.is_anonymous %}
+                                <a href="{{ url_for('auth.login') }}">login</a>
+                            {% else %}
+                                <a href="{{ url_for('auth.logout') }}">logout</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="messaged-ul">
+                    {% for message in messages %}
+                        <li class="messages-li">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </body>
+
+    <footer class="section blue darken-2 white-text center">
+        <p>Poker Copyright &copy 2021</p>
+    </footer>
+
+</html>
