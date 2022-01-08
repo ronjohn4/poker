@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block content %}
 <section class="section section-posts grey lighten-4">
@@ -7,28 +8,17 @@
             <div class="col s12 m6 offset-m3">
                 <div class="card">
                     <div class="card-content ">
-                        <div class="row">
-                            <div>
-                                <form action="{{ url_for('auth.login') }}" method="post">
-                                    <div class="input-field">
-                                        <input name="username" type="text" id="username">  
-                                        <!-- TODO - Set focus when modal is displayed -->
-                                        <label for="username">Email</label>
-                                    </div>
-                                    <div class="input-field">
-                                        <input name="password" type="password" id="password">  
-                                        <label for="password">Password</label>
-                                    </div>
 
-                                    <div class="modal-footer">
-                                        <input type="submit" class="modal-action modal-close btn blue white-text add-game" value="Sign In">                                    
-                                    </div>
-                                </form>
+                        <h4>{{'Sign In'}}</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ wtf.quick_form(form) }}
                             </div>
                         </div>
+
                         <br>
                         <p>New User? <a href="{{ url_for('auth.register') }}">Click to Register!</a></p>
-                        <p>Forgot Your Password? <a href="{{ url_for('auth.reset_password_request') }}">Click to Reset It</a>
+                        <!-- <p>Forgot Your Password? <a href="{{ url_for('auth.reset_password_request') }}">Click to Reset It</a> -->
                         </p>
                         
                     </div>

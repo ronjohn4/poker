@@ -1,72 +1,27 @@
 {% extends "base.html" %}
-
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block content %}
-    <h1>Register</h1>
-    <div class="row">
-        <div class="col-md-4">
-            Register form goes here
-        </div>
-    </div>
+      <section class="section section-posts grey lighten-4">
+        <div class="container">
+            <div class="row">
+                <div class="col s12 m6 offset-m3">
+                    <div class="card">
+                        <div class="card-content ">
+                            <div class="row">
+                               
+                                <h4>{{'Register'}}</h4>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        {{ wtf.quick_form(form) }}
+                                    </div>
+                                </div>
 
-
-
-
-
-
-
-    <div id="login-page" class="row">
-        <div class="card">
-            <div class="col s8 m6 offset-s2 offset-m3 l3 offset-l4">
-                <form class="login-form">
-                    <div class="row">
-                    </div>
-                    <div class="row">
-                    <div class="input-field col s12">
-
-                        <input class="validate" id="email" type="email" placeholder="email">
-
-                    </div>
-                    </div>
-                    <div class="row">
-                    <div class="input-field col s12">
-                        <i class="material-icons prefix">lock_outline</i>
-                        <input id="password" type="password" placeholder="password">
-                        <label for="password">Password</label>
-                    </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="input-field col s12">
-                            <i class="material-icons prefix">lock_outline</i>
-                            <input id="password2" type="password" placeholder="password">
-                            <label for="password2">Password again</label>
+                            </div>
                         </div>
                     </div>
-
-
-                    <div class="row">          
-                    <div class="input-field col s12 m12 l12  login-text">
-                        <input type="checkbox" id="remember-me" />
-                        <label for="remember-me">Remember me</label>
-                    </div>
-                    </div>
-                    <div class="row">
-                    <div class="input-field col s12">
-                        <a href="#" class="btn waves-effect waves-light col s12">Login</a>
-                    </div>
-                    </div>
-                    <div class="row">
-                    <div class="input-field col s6 m6 l6">
-                        <p class="margin medium-small"><a href="{{ url_for('.register') }}">Register Now!</a></p>
-                    </div>
-                    <div class="input-field col s6 m6 l6">
-                        <p class="margin right-align medium-small"><a href="{{ url_for('.reset_password_request') }}#">Forgot password?</a></p>
-                    </div>          
-                    </div>
-    
-                </form>
+                </div>
             </div>
         </div>
-      </div>    
+    </section>      
 {% endblock %}
