@@ -3,7 +3,7 @@ from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
-
+from flask_bootstrap import Bootstrap
 
 
 # from flask_bootstrap import Bootstrap
@@ -22,6 +22,7 @@ login = LoginManager()
 login.login_view = 'auth.login'
 login.login_message = 'Please log in to access this page.'
 flask_api = Api()
+bootstrap = Bootstrap()
 
 # bootstrap = Bootstrap()
 
@@ -42,7 +43,8 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
-
+    bootstrap.init_app(app)
+    
     # bootstrap.init_app(app)
 
     # from app.audit import bp as audit_bp

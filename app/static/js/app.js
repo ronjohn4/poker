@@ -17,15 +17,115 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelector('.set-current-story').addEventListener('click', setCurrentStory);
       document.querySelector('.toggle-voting').addEventListener('click', toggleVoting);
       document.querySelector('.myvote').addEventListener('click', vote);
-    }
-  });
 
+      // Subscribe to the mqtt channel to receive any game_state changes---------------
+      // console.log('Connecting mqtt client')
+      const clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8);
+      client = new Paho.MQTT.Client("broker.hivemq.com", Number(8000), clientId);
+
+      // set callback handlers
+      client.onConnectionLost = onConnectionLost;
+      client.onMessageArrived = onMessageArrived;
+
+      // connect the client
+      client.connect({onSuccess:onConnect});
+
+      // called when the client connects
+      function onConnect() {
+        console.log(`onConnect()`)
+        game_id = document.getElementById('game-id').getAttribute('value');
+        console.log(`onConnect() - subscribing to poker/${game_id}`);
+        client.subscribe(`poker/view/${game_id}`);
+      }
+
+      // called when the client loses its connection
+      function onConnectionLost(responseObject) {
+        if (responseObject.errorCode !== 0) {
+          console.log("onConnectionLost:"+responseObject.errorMessage);
+          // alert('You just lost your connection (sorry), refresh after your internet as been resotred.');
+        }
+      }
+
+      // called when a message arrives
+      function onMessageArrived(message) {
+        update_view_ui(message.payloadString);
+      }
+
+    }
+})
+
+
+function update_view_ui(game_state) {
+  // console.log('update_ui(game_state):' + JSON.stringify(game_state, null, 2));
+  game_state_json = '';
+
+  // trap and skip any invalid json passed in
+  try {
+    game_state_json = JSON.parse(game_state);
+  } catch(e) {
+    console.log(e);
+    return;
+  }
+
+  // Update the Toggle button and vote visibility for each player -------------
+  // console.log('is_voting:' + game_state_json.is_voting);
+
+  if (game_state_json.is_voting) {
+    document.getElementById('toggle-voting-btn').innerHTML = "visibility_off";
+  }
+  else {
+    document.getElementById('toggle-voting-btn').innerHTML = "visibility";
+  }
+
+  // Update the Current Story -----------------------------------------------
+  // console.log('story:' + game_state_json.story);
+  document.getElementById('current-story').innerHTML = game_state_json.story;  // on page display
+  document.getElementById('current-story-modal').value = game_state_json.story;  // default when adding history
+
+  // Update the History list -----------------------------------------------
+  // console.log('history: ' + JSON.stringify(game_state_json.history, null, 2))
+  tbody = "";
+
+  for (let [key, value] of Object.entries(game_state_json.history)) {
+    // console.log(`history - ${key}: ${JSON.stringify(value, null, 2)}`);
+    history_row = `<tr><td>${value.story}</td><td>${value.value}</td></tr>`;
+    tbody = tbody + history_row;
+  }
+
+  // console.log('tbody:' + tbody);
+  document.getElementById('history').innerHTML = tbody;
+
+  // Player joined/left, voted or voting toggled ---------------------------
+  // console.log('players:' + JSON.stringify(game_state_json.players, null, 2));
+  tbody = "";
+
+  for (let [key, value] of Object.entries(game_state_json.players)) {
+    // console.log(`player - ${key}: ${JSON.stringify(value, null, 2)}`);
+
+    if (game_state_json.is_voting) {
+      if (value.vote == "") {
+        player_row = `<tr id=${key}><td class="username">${value.username}</td><td><i class="material-icons tiny">check_box_outline_blank</i></td></tr>`;    
+      }
+      else {
+        player_row = `<tr id=${key}><td class="username">${value.username}</td><td><i class="material-icons tiny">check_box</i></td></tr>`;   
+      }
+    }
+    else {
+      player_row = `<tr id=${key}><td class="username">${value.username}</td><td class="vote">${value.vote}</td></tr>`;
+    }
+    tbody = tbody + player_row;
+  }
+
+  // console.log('tbody:' + tbody);
+  document.getElementById('players').innerHTML = tbody;
+
+}
   
+
 function vote(e) {
   const current_user_id = document.getElementById('current_user_id').getAttribute('value');
   const game_id = document.getElementById('game-id').getAttribute('value');
   var current_vote = e.target.innerHTML;
-  var my_vote = document.getElementById(`${current_user_id}`).children[1];
 
   // console.log('vote');
   // console.log('current_user_id: ' + current_user_id);
@@ -34,15 +134,7 @@ function vote(e) {
   // console.log('my_vote.innerHTML: ' + my_vote.innerHTML);
 
   const xhr = new XMLHttpRequest();
-  xhr.open('PUT', `/users/${current_user_id}`, true);
- 
-  xhr.onload = function() {
-    if(this.status === 200) {
-      const response_json = JSON.parse(this.response);
-      my_vote.innerHTML = response_json.vote;
-    }
-  }
-  
+  xhr.open('PUT', `/users/${current_user_id}/vote`, true);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send(JSON.stringify({'vote': `${current_vote}`, 'current_game_id': `${game_id}`}));
   e.preventDefault();
@@ -61,19 +153,6 @@ function addVoteHistory(e) {
 
   const xhr = new XMLHttpRequest();
   xhr.open('POST', `/games/${game_id}/history`, true);
-  
-  xhr.onload = function() {
-    if(this.status === 200) {
-      const response_json = JSON.parse(this.response);
-      var history_tbody = document.getElementById('history-tbody');
-      var row = history_tbody.insertRow(0);
-      var story_cell = row.insertCell(0);
-      var vote_cell = row.insertCell(1);
-      story_cell.innerHTML = response_json['story'];
-      vote_cell.innerHTML = response_json['value'];
-    }
-  }
-  
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send(JSON.stringify({'story': `${story}`, 'value': `${vote}`}));
   e.preventDefault();    
@@ -89,17 +168,7 @@ function setCurrentStory(e) {
   // console.log('story: ' + story);
 
   const xhr = new XMLHttpRequest();
-  xhr.open('PUT', `/games/${game_id}`, true);
-  
-  xhr.onload = function() {
-    if(this.status === 200) {
-      const response_json = JSON.parse(this.response);
-      document.getElementById('current-story').innerHTML = response_json['story'];
-      // change the default story on the AddHistory modal
-      document.getElementById('current-story-modal').value = response_json['story'];
-    }
-  }
-  
+  xhr.open('PUT', `/games/${game_id}/setstory`, true);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send(JSON.stringify({'story': `${story}`}));
   e.preventDefault();
@@ -107,32 +176,13 @@ function setCurrentStory(e) {
 
 
 function toggleVoting(e) {
-  const current_user_id = document.getElementById('current_user_id').getAttribute('value');
   const game_id = document.getElementById('game-id').getAttribute('value');
-  var toggle_voting_btn = document.getElementById('toggle-voting-btn');
 
   // console.log('toggleVoting');
-  // console.log('current_user_id: ' + current_user_id);
   // console.log('game_id: ' + game_id);
-  // console.log('toggle_voting_btn: ' + toggle_voting_btn.innerHTML);
 
   const xhr = new XMLHttpRequest();
   xhr.open('PUT', `/games/${game_id}/togglevote`, true);
-
-  xhr.onload = function() {
-    if(this.status === 200) {
-      const response_json = JSON.parse(this.response);
-
-      // Toggle the view voting button
-      if (response_json.is_voting) {
-        toggle_voting_btn.innerHTML = "visibility_off";
-      }
-      else {
-        toggle_voting_btn.innerHTML = "visibility";
-      }
-    }
-  }
-
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send();
   e.preventDefault();
@@ -152,6 +202,7 @@ function formatDateTime(date) {
 }
 
 
+// TODO - possibly update all users that are on the list page when a game is added?
 function addGame(e) {
   const game = document.getElementById('game').value;
   const current_user_id = document.getElementById('current_user_id').getAttribute('value');
@@ -179,7 +230,6 @@ function addGame(e) {
       cell2.innerHTML = formatDateTime(current_datetime);
     }
   }
-  
 
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send(JSON.stringify({'name': `${game}`, 'owner_id': `${current_user_id}`}));

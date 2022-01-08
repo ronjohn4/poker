@@ -4,18 +4,58 @@ from app.models import History, Game, User
 from flask_restful import Resource, Api, reqparse, inputs
 from datetime import datetime
 from sqlalchemy.orm.exc import NoResultFound
+import json
 # from app.auth.email import send_password_reset_email
 # from flask import render_template, redirect, url_for, flash, request
 # from flask_login import login_user, logout_user, current_user
 # from werkzeug.urls import url_parse
 
+# TODO - move PublishGameState() calls out of base REST endpoints and into special endpoints 
 
-# TODO - Add infrastructure to notify a user list when their game has changed
-# - History added
-# - is_voting flag changed
-# - Vote added to Game by another player
-# - Someone joins or leaves the game
-# - Current story changes
+def GameState(id:int):
+    # print(f"GameState(id:int): {id}")
+
+    data_single = Game.query.filter_by(id=id).one()
+    playerlist = User.query.filter_by(current_game_id=data_single.id).order_by(User.username.asc())
+    players = {}
+    for p in playerlist:
+        players[p.username] = p.to_dict()
+
+    historylist = History.query.filter_by(game_id=data_single.id).order_by(History.add_date.desc())
+    history = {}
+    for h in historylist:
+        history[str(h.add_date)] = h.to_dict()
+
+    game_dict = data_single.to_dict()
+    game_dict['players'] = players
+    game_dict['history'] = history
+    game_json = json.dumps(game_dict)
+    
+    # print(f"game_json: {game_json}")
+    return str(game_json)
+
+
+def PublishGameState(id:int):
+    # print(f'PublishGameState(id:int): {id}')
+    import paho.mqtt.client as mqtt
+
+    # def on_connect(mqttc, obj, flags, rc):
+    #     print("rc: " + str(rc))
+
+    # def on_publish(mqttc, obj, mid):
+    #     print("mid: " + str(mid))
+
+    mqttc = mqtt.Client()
+    # mqttc.on_connect = on_connect
+    # mqttc.on_publish = on_publish
+    # Uncomment to enable debug messages
+    # mqttc.on_log = on_log
+    mqttc.connect("broker.hivemq.com", 1883, 60)
+    infot = mqttc.publish(f"poker/view/{id}", GameState(id) , qos=2)
+    infot.wait_for_publish()
+    
+    print(f'PublishGameState-end: channel=poker/{id}')
+    return
 
 
 # GAMES ---------------------------------------------
@@ -46,6 +86,7 @@ class GamesHistory(Resource):
             return {'msg':'Unknown error when trying to GamesAddHistory'}, 500  
 
         # print(f'GamesAddHistory-post return: {data_single.to_dict()}')
+        PublishGameState(id)
         return data_single.to_dict(), 200
 
 class GamesToggleVote(Resource):
@@ -61,6 +102,8 @@ class GamesToggleVote(Resource):
 
         db.session.commit()
         # print(f'GamesToggleVote-put return: {data_single.to_dict()}')
+
+        PublishGameState(id)
         return data_single.to_dict(), 200
 
 
@@ -113,7 +156,7 @@ class GamesID(Resource):
         parser.add_argument('owner_id', type=int, required=False, help='owner_id problem (not required)')
         parser.add_argument('story', type=str, required=False, help='story problem (not required)')
         args = parser.parse_args()
-        print(f'Games-put args: {args}')
+        # print(f'Games-put args: {args}')
 
         try:
             data_single = Game.query.filter_by(id=id).one()
@@ -121,7 +164,6 @@ class GamesID(Resource):
             return {'msg':f'No records found for id:{id}'}, 404
         except:
             return {'msg':f'Unknown error when trying to put Games id:{id}'}, 500   
-
 
         if args['name'] is not None:
             data_single.name = args['name']
@@ -136,10 +178,6 @@ class GamesID(Resource):
             data_single.owner_id = args['owner_id']
         if args['story'] is not None:
             data_single.story = args['story']
-    
-        print(f'Games-put data_single: {data_single.is_active}')
-        print(f'Games-put data_single: {args["is_active"]}')
-        print(f'Games-put data_single: {args["is_active"] == True}')
 
         db.session.commit()
         # print(f'Games-put return: {data_single.to_dict()}')
@@ -166,7 +204,34 @@ class GamesID(Resource):
         # print(f'Games-delete return: {data_single.to_dict()}')
         return {'msg':f'Game deleted id:{id}'}, 200
 
+
+
+class GamesSetStory(Resource):
+    def put(self, id):
+        parser = reqparse.RequestParser()
+        parser.add_argument('story', type=str, required=True, help='story problem (required)')
+        args = parser.parse_args()
+        # print(f'GamesSetStory-put args: {args}')
+
+        try:
+            data_single = Game.query.filter_by(id=id).one()
+        except NoResultFound:
+            return {'msg':f'No records found for id:{id}'}, 404
+        except:
+            return {'msg':f'Unknown error when trying to put Games id:{id}'}, 500   
+
+        if args['story'] is not None:
+            data_single.story = args['story']
+
+        db.session.commit()
+        # print(f'GamesSetStory-put return: {data_single.to_dict()}')
+
+        PublishGameState(id)
+        return data_single.to_dict(), 200
+
+
 flask_api.add_resource(GamesToggleVote, '/games/<int:id>/togglevote')  # Put
+flask_api.add_resource(GamesSetStory, '/games/<int:id>/setstory')  # Put
 flask_api.add_resource(GamesHistory, '/games/<int:id>/history') # Task Specific Post
 flask_api.add_resource(Games, '/games') # Post
 flask_api.add_resource(GamesID, '/games/<int:id>')  # Put, Get, Delete
@@ -261,6 +326,7 @@ class Users(Resource):
             last_seen = args['last_seen'],
             current_game_id = args['current_game_id'],
         )
+        data_single.set_password('test')
 
         try:
             db.session.add(data_single)
@@ -272,9 +338,35 @@ class Users(Resource):
         # print(f'Users-post return: {data_single.to_dict()}')
         return data_single.to_dict(), 200
 
+class UsersVote(Resource):
+    def put(self, id):
+        parser = reqparse.RequestParser()
+        parser.add_argument('vote', type=str, required=True, help='vote problem (required)')
+        parser.add_argument('current_game_id', type=int, required=True, help='current_game_id problem (required)')
+        args = parser.parse_args()
+        # print(f'UsersVote-put args: {args}')
+
+        try:
+            data_single = User.query.filter_by(id=id).one()
+        except NoResultFound:
+            return {'msg':f'No records found for id:{id}'}, 404
+        except:
+            return {'msg':f'Unknown error when trying to put Users id:{id}'}, 500   
+
+        if args['vote'] is not None:
+            data_single.vote = args['vote']
+        if args['current_game_id'] is not None:
+            data_single.current_game_id = args['current_game_id']
+
+        db.session.commit()
+        # print(f'Users-put return: {data_single.to_dict()}')
+
+        PublishGameState(data_single.current_game_id)
+        return data_single.to_dict(), 200
+
 flask_api.add_resource(UsersID, '/users/<int:id>') # Put, Get, Delete
 flask_api.add_resource(Users, '/users')  # Post
-
+flask_api.add_resource(UsersVote, '/users/<int:id>/vote')  # Put
 
 # ---------------------------------------------
 # @bp.route('/login', methods=['GET', 'POST'])
