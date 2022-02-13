@@ -1,0 +1,8 @@
+__pychache__
+nginx
+venv
+docker-compose.yml
+.vscode
+__pycache__
+.pytest_cache
+

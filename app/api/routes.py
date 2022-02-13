@@ -51,7 +51,7 @@ def PublishGameState(id:int):
     # Uncomment to enable debug messages
     # mqttc.on_log = on_log
     mqttc.connect("broker.hivemq.com", 1883, 60)
-    infot = mqttc.publish(f"poker/view/{id}", GameState(id) , qos=2)
+    infot = mqttc.publish(f"poker/game/{id}", GameState(id) , qos=2)
     infot.wait_for_publish()
     
     print(f'PublishGameState-end: channel=poker/{id}')
@@ -230,11 +230,11 @@ class GamesSetStory(Resource):
         return data_single.to_dict(), 200
 
 
-flask_api.add_resource(GamesToggleVote, '/games/<int:id>/togglevote')  # Put
-flask_api.add_resource(GamesSetStory, '/games/<int:id>/setstory')  # Put
-flask_api.add_resource(GamesHistory, '/games/<int:id>/history') # Task Specific Post
-flask_api.add_resource(Games, '/games') # Post
-flask_api.add_resource(GamesID, '/games/<int:id>')  # Put, Get, Delete
+flask_api.add_resource(GamesToggleVote, '/api/games/<int:id>/togglevote')  # Put
+flask_api.add_resource(GamesSetStory, '/api/games/<int:id>/setstory')  # Put
+flask_api.add_resource(GamesHistory, '/api/games/<int:id>/history') # Task Specific Post
+flask_api.add_resource(Games, '/api/games') # Post
+flask_api.add_resource(GamesID, '/api/games/<int:id>')  # Put, Get, Delete
 
 
 # USERS ---------------------------------------------
@@ -344,7 +344,7 @@ class UsersVote(Resource):
         parser.add_argument('vote', type=str, required=True, help='vote problem (required)')
         parser.add_argument('current_game_id', type=int, required=True, help='current_game_id problem (required)')
         args = parser.parse_args()
-        # print(f'UsersVote-put args: {args}')
+        print(f'UsersVote-put args: {args}')
 
         try:
             data_single = User.query.filter_by(id=id).one()
@@ -359,14 +359,14 @@ class UsersVote(Resource):
             data_single.current_game_id = args['current_game_id']
 
         db.session.commit()
-        # print(f'Users-put return: {data_single.to_dict()}')
+        print(f'Users-put return: {data_single.to_dict()}')
 
         PublishGameState(data_single.current_game_id)
         return data_single.to_dict(), 200
 
-flask_api.add_resource(UsersID, '/users/<int:id>') # Put, Get, Delete
-flask_api.add_resource(Users, '/users')  # Post
-flask_api.add_resource(UsersVote, '/users/<int:id>/vote')  # Put
+flask_api.add_resource(UsersID, '/api/users/<int:id>') # Put, Get, Delete
+flask_api.add_resource(Users, '/api/users')  # Post
+flask_api.add_resource(UsersVote, '/api/users/<int:id>/vote')  # Put
 
 # ---------------------------------------------
 # @bp.route('/login', methods=['GET', 'POST'])

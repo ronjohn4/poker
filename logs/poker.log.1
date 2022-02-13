@@ -1,0 +1,105 @@
+2022-02-05 09:46:24,320 INFO: Poker startup [in C:\Users\ronjo\Desktop\Projects\python\poker\app\__init__.py:137]
+2022-02-05 09:48:52,761 INFO: Poker startup [in C:\Users\ronjo\Desktop\Projects\python\poker\app\__init__.py:137]
+2022-02-05 09:52:23,917 INFO: Poker startup [in C:\Users\ronjo\Desktop\Projects\python\poker\app\__init__.py:137]
+2022-02-05 09:56:23,857 INFO: Poker startup [in C:\Users\ronjo\Desktop\Projects\python\poker\app\__init__.py:137]
+2022-02-05 09:57:39,279 ERROR: Exception on /auth/reset_password_request [POST] [in c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py:1457]
+Traceback (most recent call last):
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 2073, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1518, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\auth\routes.py", line 60, in reset_password_request
+    send_password_reset_email(user)
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\auth\email.py", line 5, in send_password_reset_email
+    token = user.get_reset_password_token()
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\models.py", line 143, in get_reset_password_token
+    return jwt.encode(
+AttributeError: module 'jwt' has no attribute 'encode'
+2022-02-05 10:04:12,599 INFO: Poker startup [in C:\Users\ronjo\Desktop\Projects\python\poker\app\__init__.py:137]
+2022-02-05 10:04:32,135 ERROR: Exception on /auth/reset_password_request [POST] [in c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py:1457]
+Traceback (most recent call last):
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 2073, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1518, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\auth\routes.py", line 60, in reset_password_request
+    send_password_reset_email(user)
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\auth\email.py", line 5, in send_password_reset_email
+    token = user.get_reset_password_token()
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\models.py", line 143, in get_reset_password_token
+    return jwt.encode(
+AttributeError: module 'jwt' has no attribute 'encode'
+2022-02-05 10:08:14,251 INFO: Poker startup [in C:\Users\ronjo\Desktop\Projects\python\poker\app\__init__.py:137]
+2022-02-05 10:08:19,105 INFO: Poker startup [in C:\Users\ronjo\Desktop\Projects\python\poker\app\__init__.py:137]
+2022-02-05 10:08:30,843 ERROR: Exception on /auth/reset_password_request [POST] [in c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py:1457]
+Traceback (most recent call last):
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 2073, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1518, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\auth\routes.py", line 60, in reset_password_request
+    send_password_reset_email(user)
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\auth\email.py", line 5, in send_password_reset_email
+    token = user.get_reset_password_token()
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\models.py", line 143, in get_reset_password_token
+    return jwt.encode(
+AttributeError: module 'jwt' has no attribute 'encode'
+2022-02-05 10:13:16,367 INFO: Poker startup [in C:\Users\ronjo\Desktop\Projects\python\poker\app\__init__.py:137]
+2022-02-05 10:13:31,283 ERROR: Exception on /auth/reset_password_request [POST] [in c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py:1457]
+Traceback (most recent call last):
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 2073, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1518, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\auth\routes.py", line 60, in reset_password_request
+    send_password_reset_email(user)
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\auth\email.py", line 5, in send_password_reset_email
+    token = user.get_reset_password_token()
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\models.py", line 143, in get_reset_password_token
+    return jwt.encode(
+AttributeError: module 'jwt' has no attribute 'encode'
+2022-02-06 17:04:42,489 INFO: Poker startup [in C:\Users\ronjo\Desktop\Projects\python\poker\app\__init__.py:137]
+2022-02-06 17:04:57,818 ERROR: Exception on /auth/reset_password_request [POST] [in c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py:1457]
+Traceback (most recent call last):
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 2073, in wsgi_app
+    response = self.full_dispatch_request()
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1518, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "c:\Users\ronjo\Desktop\Projects\python\poker\venv\lib\site-packages\flask\app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\auth\routes.py", line 60, in reset_password_request
+    send_password_reset_email(user)
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\auth\email.py", line 5, in send_password_reset_email
+    token = user.get_reset_password_token()
+  File "C:\Users\ronjo\Desktop\Projects\python\poker\app\models.py", line 142, in get_reset_password_token
+    return jwt.encode(
+AttributeError: 'str' object has no attribute 'decode'
+2022-02-06 20:10:15,810 INFO: Poker startup [in C:\Users\ronjo\Desktop\Projects\python\poker\app\__init__.py:137]

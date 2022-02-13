@@ -29,15 +29,16 @@
             <div class="nav-wrapper">
                 <div class="container">
                     <a href="{{ url_for('main.index') }}" class="brand-logo">Poker</a>
-                    <ul id="nav-mobile" class="right">
-                        <li>
-                            {% if current_user.is_anonymous %}
-                                <a href="{{ url_for('auth.login') }}">login</a>
-                            {% else %}
-                                <a href="{{ url_for('auth.logout') }}">logout</a>
-                            {% endif %}
-                        </li>
-                    </ul>
+                    <div class="right">
+                        {% if current_user.is_anonymous %}
+                            <a href="{{ url_for('auth.login') }}">login</a> | 
+                            <a href="{{ url_for('auth.register') }}">register</a>
+                        {% else %}
+                            <a href="{{ url_for('auth.logout') }}">logout</a> | 
+                            <a href="{{ url_for('main.edit_profile') }}">{{current_user.username}}</a>
+                        {% endif %}
+
+                    </div>
                 </div>
             </div>
         </nav>

@@ -12,11 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (page == 'index' || page == '') {
       document.querySelector('.add-game').addEventListener('click', addGame);
     }
-    else if (page == 'view') {
+    else if (page == 'game') {
       document.querySelector('.add-vote-history').addEventListener('click', addVoteHistory);
       document.querySelector('.set-current-story').addEventListener('click', setCurrentStory);
       document.querySelector('.toggle-voting').addEventListener('click', toggleVoting);
-      document.querySelector('.myvote').addEventListener('click', vote);
+      document.querySelector('.my-vote').addEventListener('click', vote);
 
       // Subscribe to the mqtt channel to receive any game_state changes---------------
       // console.log('Connecting mqtt client')
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(`onConnect()`)
         game_id = document.getElementById('game-id').getAttribute('value');
         console.log(`onConnect() - subscribing to poker/${game_id}`);
-        client.subscribe(`poker/view/${game_id}`);
+        client.subscribe(`poker/game/${game_id}`);
       }
 
       // called when the client loses its connection
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function update_view_ui(game_state) {
-  // console.log('update_ui(game_state):' + JSON.stringify(game_state, null, 2));
+  console.log('update_ui(game_state):' + JSON.stringify(game_state, null, 2));
   game_state_json = '';
 
   // trap and skip any invalid json passed in
@@ -127,14 +127,13 @@ function vote(e) {
   const game_id = document.getElementById('game-id').getAttribute('value');
   var current_vote = e.target.innerHTML;
 
-  // console.log('vote');
-  // console.log('current_user_id: ' + current_user_id);
-  // console.log('game_id: ' + game_id);
-  // console.log('current_vote: ' + current_vote);
-  // console.log('my_vote.innerHTML: ' + my_vote.innerHTML);
+  console.log('vote');
+  console.log('current_user_id: ' + current_user_id);
+  console.log('game_id: ' + game_id);
+  console.log('current_vote: ' + current_vote);
 
   const xhr = new XMLHttpRequest();
-  xhr.open('PUT', `/users/${current_user_id}/vote`, true);
+  xhr.open('PUT', `/api/users/${current_user_id}/vote`, true);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send(JSON.stringify({'vote': `${current_vote}`, 'current_game_id': `${game_id}`}));
   e.preventDefault();
@@ -152,7 +151,7 @@ function addVoteHistory(e) {
   // console.log('vote: ' + vote);   
 
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', `/games/${game_id}/history`, true);
+  xhr.open('POST', `/api/games/${game_id}/history`, true);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send(JSON.stringify({'story': `${story}`, 'value': `${vote}`}));
   e.preventDefault();    
@@ -168,7 +167,7 @@ function setCurrentStory(e) {
   // console.log('story: ' + story);
 
   const xhr = new XMLHttpRequest();
-  xhr.open('PUT', `/games/${game_id}/setstory`, true);
+  xhr.open('PUT', `/api/games/${game_id}/setstory`, true);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send(JSON.stringify({'story': `${story}`}));
   e.preventDefault();
@@ -182,7 +181,7 @@ function toggleVoting(e) {
   // console.log('game_id: ' + game_id);
 
   const xhr = new XMLHttpRequest();
-  xhr.open('PUT', `/games/${game_id}/togglevote`, true);
+  xhr.open('PUT', `/api/games/${game_id}/togglevote`, true);
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.send();
   e.preventDefault();
@@ -212,19 +211,21 @@ function addGame(e) {
   // console.log('current_user_id: ' + current_user_id);
 
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', `/games`, true);
+  xhr.open('POST', `/api/games`, true);
  
   xhr.onload = function() {
     if(this.status === 200) {
       var gametable = document.querySelector('.games');
-      const hl = document.createElement('a');
+      var hl = document.createElement('a');
+      console.log('h1-1', h1)
       var row = gametable.insertRow(0);
       var cell1 = row.insertCell(0);
       var cell2 = row.insertCell(1);
       const response_json = JSON.parse(xhr.responseText);
       let current_datetime = new Date(response_json.last_used_date);
 
-      hl.href = 'view/' + response_json.id;
+      hl.href = 'game/' + response_json.id;
+      console.log('h1-2', h1)
       hl.appendChild(document.createTextNode(response_json.name));
       cell1.appendChild(hl);
       cell2.innerHTML = formatDateTime(current_datetime);

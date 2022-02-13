@@ -131,7 +131,7 @@
 <div id="size" class="modal">
     <div class="modal-content">
         <h4>My Vote</h4>
-        <div class="myvote">
+        <div class="my-vote">
             <div class="row">
                 <button type="button" class="modal-action modal-close btn blue white-text col s3" value=0>0</button>
                 <button type="button" class="modal-action modal-close btn blue white-text col s3" value=1>1</button>
@@ -176,14 +176,13 @@
         <h4>Add History</h4>
         <form>
             <div class="input-field">
-                <input type="text" id="current-story-modal" value="{{datasingle.story}}">  
+                <input type="text" id="current-story-modal" value="{{datasingle.story}}" autofocus>  
                 <!-- TODO - Set focus when modal is displayed -->
                 <label for="current-story-modal">Current Story</label>
             </div>
 
             <div class="input-field">
                 <input type="text" id="vote">
-                <!-- TODO - Set focus when modal is displayed -->
                 <label for="title">Vote</label>
             </div>
             <div class="modal-footer">
@@ -205,11 +204,11 @@
         $('.modal').modal();
     })
 
-    $('.vote-history-btn').click(function(){ 
-        // TODO - Set the default cursor position
-        // alert("I want this to appear after the modal has opened!");
-        document.getElementById('current-story-modal').focus();
-    }); 
+    // $('.vote-history-btn').click(function(){ 
+    //     // TODO - Set the default cursor position
+    //     // alert("I want this to appear after the modal has opened!");
+    //     document.getElementById('current-story-modal').focus();
+    // }); 
 </script>
 
 

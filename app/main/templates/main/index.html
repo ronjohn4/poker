@@ -21,7 +21,7 @@
                                 <tbody class="games">
                                     {% for datasingle in datalist %}
                                         <tr>
-                                            <td><a href="{{ url_for('.view', id=datasingle.id) }}">{{datasingle.name}}</a></td>
+                                            <td><a href="{{ url_for('.game', id=datasingle.id) }}">{{datasingle.name}}</a></td>
                                             <td>{{datasingle.last_used_date.strftime('%m/%d %H:%M')}}</td>
                                         </tr>
                                     {% endfor %}
