@@ -6,14 +6,10 @@ from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
 
-# from flask_bootstrap import Bootstrap
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
-
-# from logging.handlers import RotatingFileHandler
 import os
 from config import Config
-
 # from sqlalchemy.engine import Engine
 # from sqlalchemy import event
 
@@ -26,8 +22,6 @@ login.login_message = 'Please log in to access this page.'
 mail = Mail()
 flask_api = Api()
 bootstrap = Bootstrap()
-
-# bootstrap = Bootstrap()
 
 
 # https://docs.sqlalchemy.org/en/13/dialects/sqlite.html#foreign-key-support
@@ -48,8 +42,6 @@ def create_app(config_class=Config):
     login.init_app(app)
     mail.init_app(app)
     bootstrap.init_app(app)
-    
-    # bootstrap.init_app(app)
 
     # from app.audit import bp as audit_bp
     # app.register_blueprint(audit_bp, url_prefix='/audit', template_folder='templates')
@@ -72,7 +64,6 @@ def create_app(config_class=Config):
     # from app.keyval import bp as keyval_bp
     # app.register_blueprint(keyval_bp, url_prefix='/keyval', template_folder='templates')
 
-    # from app.api import routes2
     from app.api import bp as api_bp
     flask_api.init_app(api_bp)
     app.register_blueprint(api_bp, url_prefix='/')
@@ -122,13 +113,6 @@ def create_app(config_class=Config):
 
 
 app = create_app()
-
-
-print(f'MAIL_SERVER: {app.config["MAIL_SERVER"]}')
-print(f'MAIL_PORT: {app.config["MAIL_PORT"]}')
-print(f'MAIL_USE_TLS: {app.config["MAIL_USE_TLS"]}')
-print(f'MAIL_USERNAME: {app.config["MAIL_USERNAME"]}')
-print(f'MAIL_PASSWORD: {app.config["MAIL_PASSWORD"]}')
 
 
 from app import models

@@ -1,25 +1,27 @@
+from sqlalchemy import false
 from app import db, flask_api
 from app.api import bp
-from app.models import History, Game, User
+from app.models import History, Game, User, Player
 from flask_restful import Resource, Api, reqparse, inputs
 from datetime import datetime
 from sqlalchemy.orm.exc import NoResultFound
 import json
+import uuid
 # from app.auth.email import send_password_reset_email
 # from flask import render_template, redirect, url_for, flash, request
 # from flask_login import login_user, logout_user, current_user
 # from werkzeug.urls import url_parse
 
-# TODO - move PublishGameState() calls out of base REST endpoints and into special endpoints 
+# TODO - move PublishGameState() calls out of base REST endpoints and into special endpoints for internal use
 
 def GameState(id:int):
     # print(f"GameState(id:int): {id}")
 
     data_single = Game.query.filter_by(id=id).one()
-    playerlist = User.query.filter_by(current_game_id=data_single.id).order_by(User.username.asc())
-    players = {}
-    for p in playerlist:
-        players[p.username] = p.to_dict()
+    # playerlist = User.query.filter_by(current_game_id=data_single.id).order_by(User.username.asc())
+    # players = {}
+    # for p in playerlist:
+    #     players[p.username] = p.to_dict()
 
     historylist = History.query.filter_by(game_id=data_single.id).order_by(History.add_date.desc())
     history = {}
@@ -27,7 +29,7 @@ def GameState(id:int):
         history[str(h.add_date)] = h.to_dict()
 
     game_dict = data_single.to_dict()
-    game_dict['players'] = players
+    # game_dict['players'] = players
     game_dict['history'] = history
     game_json = json.dumps(game_dict)
     
@@ -89,6 +91,12 @@ class GamesHistory(Resource):
         PublishGameState(id)
         return data_single.to_dict(), 200
 
+
+
+        # data = User.to_collection_dict(user.followers, page, per_page,
+        #                                 'api.get_followers', id=id)
+        # return jsonify(data)
+
 class GamesToggleVote(Resource):
     def put(self, id):
         try:
@@ -118,7 +126,7 @@ class Games(Resource):
         parser.add_argument('story', type=str, required=False, help='story problem (not required)')
                 
         args = parser.parse_args()
-        # print(f'Games-post args: {args}')
+        print(f'Games-post args: {args}')
 
         if args['last_used_date'] is None:
             args['last_used_date'] = datetime.now()
@@ -127,7 +135,7 @@ class Games(Resource):
         if args['is_voting'] is None:
             args['is_voting'] = False
 
-        data_single = Game(
+        game_single = Game(
             name = args['name'],
             last_used_date = args['last_used_date'],
             is_active = args['is_active'],
@@ -136,15 +144,30 @@ class Games(Resource):
             story = args['story'],
         )
 
+        player_single = Player(
+            game_id = None,
+            user_id = args['owner_id'],
+            last_used_date = args['last_used_date'],
+            is_playing = False,
+            email = None,
+            is_owner = True,
+        )
+
         try:
-            db.session.add(data_single)
+            db.session.add(game_single)
             db.session.flush()  # flush() so the id is populated after add
+
+            player_single.game_id = game_single.id
+            db.session.add(player_single)
+            db.session.flush()  # flush() so the id is populated after add
+
             db.session.commit()
         except:
             return {'msg':'Unknown error when trying to post Games'}, 500  
 
-        # print(f'Games-post return: {data_single.to_dict()}')
-        return data_single.to_dict(), 200
+        print(f'Games-game post return: {game_single.to_dict()}')
+        print(f'Games-player post return: {player_single.to_dict()}')
+        return game_single.to_dict(), 200
 
 class GamesID(Resource):
     def put(self, id):
@@ -170,7 +193,6 @@ class GamesID(Resource):
         if args['last_used_date'] is not None:
             data_single.last_used_date = args['last_used_date']
         if args['is_active'] is not None:
-            print(f'is_active setting to: {args["is_active"]}')
             data_single.is_active = args['is_active']
         if args['is_voting'] is not None:
             data_single.is_voting = args['is_voting']
@@ -235,6 +257,7 @@ flask_api.add_resource(GamesSetStory, '/api/games/<int:id>/setstory')  # Put
 flask_api.add_resource(GamesHistory, '/api/games/<int:id>/history') # Task Specific Post
 flask_api.add_resource(Games, '/api/games') # Post
 flask_api.add_resource(GamesID, '/api/games/<int:id>')  # Put, Get, Delete
+
 
 
 # USERS ---------------------------------------------
@@ -367,6 +390,90 @@ class UsersVote(Resource):
 flask_api.add_resource(UsersID, '/api/users/<int:id>') # Put, Get, Delete
 flask_api.add_resource(Users, '/api/users')  # Post
 flask_api.add_resource(UsersVote, '/api/users/<int:id>/vote')  # Put
+
+
+
+# TODO - enforce unique player record by game_id, email
+# PLAYER ---------------------------------------------
+class Players(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('user_id', type=str, required=False, help='user_id problem (not required)')
+        parser.add_argument('game_id', type=str, required=True, help='game_id problem (required)')
+        parser.add_argument('invite_token', type=str, required=False, help='invite_token problem (not required)')
+        parser.add_argument('invite_date', type=lambda s: datetime.strptime(s, '%Y-%m-%d %H:%M:%S.%f'), required=False, help='invite_date problem (not required)')
+        parser.add_argument('is_playing', type=bool, required=False, help='is_playing problem (not required)')
+        parser.add_argument('email', type=str, required=True, help='email problem (required)')
+        parser.add_argument('vote', type=str, required=False, help='vote problem (not required)')
+        parser.add_argument('vote_date', type=lambda s: datetime.strptime(s, '%Y-%m-%d %H:%M:%S.%f'), required=False, help='vote_date problem (not required)')
+        parser.add_argument('last_used_date', type=lambda s: datetime.strptime(s, '%Y-%m-%d %H:%M:%S.%f'), required=False, help='last_used_date problem (not required)')
+        args = parser.parse_args()
+        # print(f'Users-put args: {args}')
+
+        if args['user_id'] is None:
+            args['user_id'] = None
+        # game_id is required
+        if args['invite_token'] is None:
+            args['invite_token'] = str(uuid.uuid1())
+        if args['invite_date'] is None:
+            args['invite_date'] = datetime.now()
+        if args['is_playing'] is None:
+            args['is_playing'] = False
+        # email is required
+        if args['vote'] is None:
+            args['vote'] = None
+        if args['vote_date'] is None:
+            args['vote_date'] = None
+        if args['last_used_date'] is None:
+            args['last_used_date'] = datetime.now()
+
+        data_single = Player(
+            user_id = args['user_id'],
+            game_id = args['game_id'],
+            invite_token = args['invite_token'],
+            invite_date = args['invite_date'],
+            is_playing = args['is_playing'],
+            email = args['email'],
+            vote = args['vote'],
+            vote_date = args['vote_date'],
+            last_used_date = args['last_used_date'],
+            is_owner = False
+        )
+
+        try:
+            db.session.add(data_single)
+            db.session.flush()  # flush() so the id is populated after add
+            db.session.commit()
+        except:
+            return {'msg':'Unknown error when trying to post Players'}, 500  
+
+        # print(f'Players-post return: {data_single.to_dict()}')
+        return data_single.to_dict(), 200
+
+
+
+class PlayerSetGame(Resource):
+    def put(self, player_id, game_id):
+        # print(f'Player-PlayerSetGame player_id:{player_id} game_id:{game_id}')
+
+        try:
+            data_single = Player.query.filter_by(user_id=player_id, game_id=game_id ).one()
+        except NoResultFound:
+            return {'msg':f'No records found for Player id:{player_id}'}, 404
+        except:
+            return {'msg':f'Unknown error when trying to put Player id:{player_id}'}, 500   
+
+        data_single.is_playing = True
+        data_single.last_used_date = datetime.now()
+
+        db.session.commit()
+        # print(f'Users-put return: {data_single.to_dict()}')
+        return data_single.to_dict(), 200
+
+
+flask_api.add_resource(Players, '/api/players') # Post
+flask_api.add_resource(PlayerSetGame, '/api/player/<int:player_id>/setgame/<int:game_id>')  # Put
+
 
 # ---------------------------------------------
 # @bp.route('/login', methods=['GET', 'POST'])

@@ -87,6 +87,47 @@
     </div>
 </section>
 
+<!-- TODO - Use and expansion panel here -->
+<!-- TODO - add invite from here -->
+<section class="section section-posts grey lighten-4">
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <!-- <span class="card-title">Invited</span> -->
+                        <span class="card-title">Invited
+                            
+                            <a href="#add-invite" class="modal-trigger btn-floating blue add-invite-add-btn right"><i class="material-icons">add</i></a>
+                            
+                            
+                        </span>
+                        <!-- <div>
+                            <a href="#add-invite" class="modal-trigger btn-floating blue add-invite-add-btn right"><i class="material-icons">add</i></a>
+                        </div> -->
+                        <table class="striped">
+                            <thead>
+                                <tr>
+                                    <th>Invited</th>
+                                </tr>
+                            </thead>
+                            <tbody class="invited" id="invited">
+                                {% for invited in invitedlist %}
+                                    <tr id={{invited.id}}>
+                                        <td class="username">{{invited.email}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 
 <!-- TODO - verticle collapse button -->
 <!-- Fixed Action Button  -->
@@ -109,23 +150,6 @@
             <i id="toggle-voting-btn" class="material-icons">visibility_off</i>
         </a>
     {% endif %}
-    <!-- <ul>
-        <li>
-            <a class="btn-floating red">
-                <i class="material-icons">insert_chart</i>
-            </a>
-        </li>
-        <li>
-            <a class="btn-floating blue">
-                <i class="material-icons">publish</i>
-            </a>
-        </li>
-        <li>
-            <a class="btn-floating yellow">
-                <i class="material-icons">format_quote</i>
-            </a>
-        </li>
-    </ul> -->
 </div>
 
 <div id="size" class="modal">
@@ -153,6 +177,34 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+
+<div id="add-invite" class="modal">
+    <div class="modal-content">
+        <h4>Add Invite</h4>
+        <form>
+            <div class="input-field">
+                <input type="email" id="email">  
+                <!-- TODO - Set focus when modal is displayed -->
+                <label for="title">Email</label>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="modal-action modal-close btn blue white-text add-invite">Invite</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+
+
 
 <div id="current-game" class="modal">
     <div class="modal-content">

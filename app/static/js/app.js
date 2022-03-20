@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelector('.set-current-story').addEventListener('click', setCurrentStory);
       document.querySelector('.toggle-voting').addEventListener('click', toggleVoting);
       document.querySelector('.my-vote').addEventListener('click', vote);
+      document.querySelector('.add-invite').addEventListener('click', addInvite);
 
       // Subscribe to the mqtt channel to receive any game_state changes---------------
       // console.log('Connecting mqtt client')
@@ -140,6 +141,38 @@ function vote(e) {
 }
 
 
+function addInvite(e) {
+  const email = document.getElementById('email').value;
+  const game_id = document.getElementById('game-id').getAttribute('value');
+
+  console.log('addInvite');
+  console.log('game_id: ' + game_id);
+  console.log('email: ' + email);   
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', `/api/players`, true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.send(JSON.stringify({'game_id': `${game_id}`,'email': `${email}`}));
+  e.preventDefault();    
+}
+
+
+
+// parser.add_argument('user_id', type=str, required=True, help='user_id problem (required)')
+// parser.add_argument('game_id', type=str, required=True, help='game_id problem (required)')
+// parser.add_argument('invite_token', type=str, required=True, help='invite_token problem (required)')
+
+// parser.add_argument('invite_date', type=lambda s: datetime.strptime(s, '%Y-%m-%d %H:%M:%S.%f'), required=False, help='invite_date problem (not required)')
+// parser.add_argument('is_playing', type=bool, required=False, help='is_playing problem (not required)')
+// parser.add_argument('email', type=str, required=False, help='email problem (not required)')
+// parser.add_argument('vote', type=str, required=False, help='vote problem (not required)')
+// parser.add_argument('vote_date', type=lambda s: datetime.strptime(s, '%Y-%m-%d %H:%M:%S.%f'), required=False, help='vote_date problem (not required)')
+// parser.add_argument('last_used_date', type=lambda s: datetime.strptime(s, '%Y-%m-%d %H:%M:%S.%f'), required=False, help='last_used_date problem (not required)')
+
+
+
+
+
 function addVoteHistory(e) {
   const story = document.getElementById('current-story-modal').value;
   const vote = document.getElementById('vote').value;
@@ -201,7 +234,6 @@ function formatDateTime(date) {
 }
 
 
-// TODO - possibly update all users that are on the list page when a game is added?
 function addGame(e) {
   const game = document.getElementById('game').value;
   const current_user_id = document.getElementById('current_user_id').getAttribute('value');

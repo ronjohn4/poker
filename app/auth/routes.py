@@ -5,11 +5,10 @@ from app import db
 from app.auth import bp
 from app.models import User
 from app.auth.email import send_password_reset_email
-from app.auth.forms import LoginForm, RegistrationForm, LoginForm, ResetPasswordRequestForm
-# from app.auth.forms import LoginForm, RegistrationForm, ResetPasswordRequestForm, ResetPasswordForm
+from app.auth.forms import LoginForm, RegistrationForm, LoginForm, ResetPasswordRequestForm, ResetPasswordForm
 
 
-
+# TODO - need better error message on duplicate username
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -67,17 +66,18 @@ def reset_password_request():
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
-    pass
-    # if current_user.is_authenticated:
-    #     return redirect(url_for('main.index'))
-    # user = User.verify_reset_password_token(token)
-    # if not user:
-    #     return redirect(url_for('main.index'))
-    # form = ResetPasswordForm()
-    # if form.validate_on_submit():
-    #     user.set_password(form.password.data)
-    #     db.session.commit()
-    #     flash(_('Your password has been reset.'))
-    #     return redirect(url_for('auth.login'))
-    # return render_template('auth/reset_password.html', form=form)
+    # pass
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        print(f'Password Reset: user not found')
+        return redirect(url_for('main.index'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been reset.')
+        return redirect(url_for('auth.login'))
+    return render_template('auth/reset_password.html', form=form)
     
