@@ -53,19 +53,15 @@ def game(id):
     player_single.last_used_date = datetime.now()
     db.session.commit()
 
-    # TODO - remove this field from the model
-    # currentplayer = User.query.filter_by(id=current_user.id).one()
-    # currentplayer.current_game_id = id
-    # db.session.commit()
-
     data_single = Game.query.filter_by(id=id).first_or_404()
-    # playerlist = User.query.filter_by(current_game_id=data_single.id).order_by(User.username.asc())
-    # invitedlist = User.query.filter_by(current_game_id=data_single.id).order_by(User.username.asc())
     historylist = History.query.filter_by(game_id=data_single.id).order_by(History.add_date.desc())
 
     playerlist = Player.query.filter_by(game_id=data_single.id).filter(Player.is_playing == True).join(User).add_columns(User.id, User.username).filter(Player.user_id == User.id).all()
-    invitedlist = Player.query.filter_by(game_id=data_single.id).all()
- 
+    # invitedlist = Player.query.filter_by(game_id=data_single.id).all()
+    invitedlist = Player.query.filter_by(game_id=data_single.id).join(User, isouter=True).add_columns(User.id, User.username).filter(Player.user_id == User.id)
+  
+    print(invitedlist)
+
     return render_template('main/game.html', datasingle=data_single, 
         playerlist=playerlist, invitedlist=invitedlist, historylist=historylist)
 
@@ -105,8 +101,6 @@ def inviteduser(token):
         return render_template('main/index.html', datalist=datalist)
 
     data_single = Game.query.filter_by(id=player_single.game_id).first_or_404()
-    # playerlist = User.query.filter_by(current_game_id=data_single.id).order_by(User.username.asc())
-    # invitedlist = User.query.filter_by(current_game_id=data_single.id).order_by(User.username.asc())
     historylist = History.query.filter_by(game_id=data_single.id).order_by(History.add_date.desc())
 
     playerlist = Player.query.filter_by(game_id=data_single.id).filter(Player.is_playing == True).join(User).add_columns(User.id, User.username).filter(Player.user_id == User.id).all()

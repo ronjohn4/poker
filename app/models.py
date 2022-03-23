@@ -73,7 +73,6 @@ class Game(db.Model):
     is_active = db.Column(db.Boolean)
     is_voting = db.Column(db.Boolean)
     history = relationship("History", cascade="all, delete", passive_deletes=True)
-    # users = relationship("User", cascade="all, delete", passive_deletes=True, foreign_keys="[User.current_game_id]", lazy="dynamic")
     players = relationship("Player", cascade="all, delete", passive_deletes=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     story = db.Column(db.String(64))
