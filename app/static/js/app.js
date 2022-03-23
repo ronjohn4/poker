@@ -136,7 +136,7 @@ function vote(e) {
   const xhr = new XMLHttpRequest();
   xhr.open('PUT', `/api/users/${current_user_id}/vote`, true);
   xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.send(JSON.stringify({'vote': `${current_vote}`, 'current_game_id': `${game_id}`}));
+  xhr.send(JSON.stringify({'vote': `${current_vote}`, 'game_id': `${game_id}`}));
   e.preventDefault();
 }
 

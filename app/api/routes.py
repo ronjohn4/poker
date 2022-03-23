@@ -18,11 +18,6 @@ def GameState(id:int):
     # print(f"GameState(id:int): {id}")
 
     data_single = Game.query.filter_by(id=id).one()
-    # playerlist = User.query.filter_by(current_game_id=data_single.id).order_by(User.username.asc())
-    # players = {}
-    # for p in playerlist:
-    #     players[p.username] = p.to_dict()
-
     historylist = History.query.filter_by(game_id=data_single.id).order_by(History.add_date.desc())
     history = {}
     for h in historylist:
@@ -269,7 +264,6 @@ class UsersID(Resource):
         parser.add_argument('vote', type=str, required=False, help='vote problem (not required)')
         parser.add_argument('about_me', type=str, required=False, help='about_me problem (not required)')
         parser.add_argument('last_seen', type=lambda s: datetime.strptime(s, '%Y-%m-%d %H:%M:%S.%f'), required=False, help='last_seen problem (not required)')
-        parser.add_argument('current_game_id', type=int, required=False, help='current_game_id problem (not required)')
         args = parser.parse_args()
         # print(f'Users-put args: {args}')
 
@@ -290,8 +284,6 @@ class UsersID(Resource):
             data_single.about_me = args['about_me']
         if args['last_seen'] is not None:
             data_single.last_seen = args['last_seen']
-        if args['current_game_id'] is not None:
-            data_single.current_game_id = args['current_game_id']
 
         db.session.commit()
         # print(f'Users-put return: {data_single.to_dict()}')
@@ -327,7 +319,6 @@ class Users(Resource):
         parser.add_argument('vote', type=str, required=False, help='vote problem (not required)')
         parser.add_argument('about_me', type=str, required=False, help='about_me problem (not required)')
         parser.add_argument('last_seen', type=lambda s: datetime.strptime(s, '%Y-%m-%d %H:%M:%S.%f'), required=False, help='last_seen problem (not required)')
-        parser.add_argument('current_game_id', type=int, required=False, help='current_game_id problem (not required)')
         args = parser.parse_args()
 
         # print(f'Users-post args: {args}')
@@ -338,8 +329,6 @@ class Users(Resource):
             args['vote'] = ""
         if args['about_me'] is None:
             args['about_me'] = ""
-        if args['current_game_id'] is None:
-            args['current_game_id'] = None
 
         data_single = User(
             username = args['username'],
@@ -347,7 +336,6 @@ class Users(Resource):
             vote = args['vote'],
             about_me = args['about_me'],
             last_seen = args['last_seen'],
-            current_game_id = args['current_game_id'],
         )
         data_single.set_password('test')
 
@@ -365,7 +353,7 @@ class UsersVote(Resource):
     def put(self, id):
         parser = reqparse.RequestParser()
         parser.add_argument('vote', type=str, required=True, help='vote problem (required)')
-        parser.add_argument('current_game_id', type=int, required=True, help='current_game_id problem (required)')
+        parser.add_argument('game_id', type=int, required=True, help='game_id problem (required)')
         args = parser.parse_args()
         print(f'UsersVote-put args: {args}')
 
@@ -378,13 +366,11 @@ class UsersVote(Resource):
 
         if args['vote'] is not None:
             data_single.vote = args['vote']
-        if args['current_game_id'] is not None:
-            data_single.current_game_id = args['current_game_id']
 
         db.session.commit()
         print(f'Users-put return: {data_single.to_dict()}')
 
-        PublishGameState(data_single.current_game_id)
+        PublishGameState(args['game_id'])
         return data_single.to_dict(), 200
 
 flask_api.add_resource(UsersID, '/api/users/<int:id>') # Put, Get, Delete
